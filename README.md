@@ -8,7 +8,7 @@ EnvAI is a device designed to monitor environmental conditions within a specifie
 
 > ⚠️ **Important Notice:**  
 > Please be advised that EnvAI is optimized for applications within **small to medium-sized environments**. Due to its lightweight hardware and software specifications, it may **not be suitable for deployment in large-scale buildings**.  
-> For assistance and guidance regarding the use of EnvAI in larger facilities, please contact [donpietro.dado@gmail.com](mailto:donpietro.dado@gmail.com).
+> For assistance and guidance regarding the use of EnvAI in larger facilities, please write an issue.
 ---
 
 ## Hardware Features

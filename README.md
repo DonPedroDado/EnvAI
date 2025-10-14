@@ -6,6 +6,7 @@
 ## What is EnvAI?  
 EnvAI is a device designed to monitor environmental conditions within a specified space. It gathers relevant data, performs analysis to identify irregularities or anomalies, and provides comprehensive reports to the user.
 
+> ⚠️ **Note:** EnvAI is designed for small to medium-sized spaces. Its lightweight hardware and software are **not recommended for large buildings**. If you wish to use EnvAI in larger facilities, please contact [donpietro.dado@gmail.com](mailto:donpietro.dado@gmail.com) for guidance and support.
 ---
 
 ## Hardware Features

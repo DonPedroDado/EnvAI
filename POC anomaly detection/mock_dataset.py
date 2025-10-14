@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime, timedelta
 
 # --- Parameters ---
-hours = 16667                # ≈2 years
+hours = 24               
 interval_minutes = 1
 num_points = int(hours * 60 / interval_minutes)
 start_time = datetime(2023, 1, 1, 0, 0)

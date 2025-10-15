@@ -21,6 +21,7 @@ sensors = [
 model_dir = "prophet_models"
 os.makedirs(model_dir, exist_ok=True)
 
+
 # --- Loop through sensors ---
 for s in sensors:
     print(f"\nProcessing {s}...")
@@ -33,7 +34,7 @@ for s in sensors:
         continue
 
     # Fit Prophet model
-    m = Prophet(daily_seasonality=True, yearly_seasonality=False, interval_width=0.95, mcmc_samples=0)
+    m = Prophet(daily_seasonality=True, yearly_seasonality=False, interval_width=1, mcmc_samples=0)
     m.fit(sensor_df)
 
     # --- Save trained model ---

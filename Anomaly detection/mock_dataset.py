@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime, timedelta
 
 # --- Parameters ---
-hours = 24               
+hours = 2190            
 interval_minutes = 1
 num_points = int(hours * 60 / interval_minutes)
 start_time = datetime(2023, 1, 1, 0, 0)
@@ -29,15 +29,11 @@ C3H8 = np.abs(0.8 + 0.5 * np.sin(t + 1.8) + noise(0.1))
 H2S = np.abs(0.05 + 0.03 * np.sin(t + 0.7) + noise(0.01))
 Rn = np.abs(15 + 6 * np.sin(t / 3 + 0.5) + noise(1))
 
-# --- Anomaly flag array ---
-anomaly_flag = np.zeros(num_points, dtype=int)
-
 # --- Inject Random Anomalies (gas leaks, etc.) ---
 def add_anomaly(signal, idx, duration, magnitude):
     end = min(idx + duration, len(signal))
     local_noise = np.random.normal(0, 0.05 * magnitude, end - idx)
     signal[idx:end] += magnitude + local_noise
-    anomaly_flag[idx:end] = 1  # mark as anomaly
 
 np.random.seed(42)
 for _ in range(25):  # spread across dataset
@@ -51,7 +47,7 @@ for _ in range(25):  # spread across dataset
     add_anomaly(H2S, idx, duration, np.random.uniform(0.5, 1.0))
     add_anomaly(NO2, idx, duration, np.random.uniform(30, 60))
 
-# --- Assemble Dataset ---
+# --- Assemble Dataset (without anomaly_flag) ---
 df = pd.DataFrame({
     "timestamp": timestamps,
     "room": room_assignments,
@@ -64,11 +60,8 @@ df = pd.DataFrame({
     "CH4_ppm": CH4.round(2),
     "C3H8_ppm": C3H8.round(2),
     "H2S_ppm": H2S.round(3),
-    "Rn_Bq_m3": Rn.round(2),
-    "anomaly_flag": anomaly_flag
+    "Rn_Bq_m3": Rn.round(2)
 })
 
 # --- Save Efficiently ---
-df.to_csv("envai_full_mock_dataset_v2_1.csv", index=False)
-print(f"EnvAI dataset generated: {len(df):,} rows → envai_full_mock_dataset_v2_1.csv")
-print(f"Total anomaly points: {df['anomaly_flag'].sum():,}")
+df.to_csv("envai_training_dataset.csv", index=False)

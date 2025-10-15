@@ -1,11 +1,7 @@
 import pandas as pd
 from prophet import Prophet
-import matplotlib.pyplot as plt
 import os
-import time
 import joblib 
-
-start_time = time.time()
 
 # --- Load existing dataset ---
 df = pd.read_csv("envai_training_dataset.csv")
@@ -24,14 +20,9 @@ os.makedirs(model_dir, exist_ok=True)
 
 # --- Loop through sensors ---
 for s in sensors:
-    print(f"\nProcessing {s}...")
 
     # Prepare data for Prophet
     sensor_df = df[['timestamp', s]].rename(columns={'timestamp': 'ds', s: 'y'}).dropna()
-
-    if sensor_df.empty:
-        print(f"No valid data for {s}, skipping.")
-        continue
 
     # Fit Prophet model
     m = Prophet(daily_seasonality=True, yearly_seasonality=False, interval_width=1, mcmc_samples=0)
@@ -40,7 +31,6 @@ for s in sensors:
     # --- Save trained model ---
     model_path = os.path.join(model_dir, f"{s}_prophet_model.joblib")
     joblib.dump(m, model_path)
-    print(f"Model saved to {model_path}")
 
     # Forecast on the same timestamps
     future = sensor_df[['ds']].copy()
@@ -51,16 +41,3 @@ for s in sensors:
         (sensor_df['y'] < forecast['yhat_lower']) |
         (sensor_df['y'] > forecast['yhat_upper'])
     ].copy()
-
-    if anomalies.empty:
-        print(f"No anomalies detected for {s}.")
-    else:
-        print(f"Detected {len(anomalies)} anomalies for {s}:")
-        for _, row in anomalies.iterrows():
-            print(f"      • {row['ds']} — {s}: {row['y']:.4f}")
-
-end_time = time.time()
-elapsed = end_time - start_time
-
-print(f"Prophet models saved in folder: {model_dir}")
-print(f"Total time elapsed: {elapsed:.2f} seconds")

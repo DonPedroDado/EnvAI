@@ -1,4 +1,5 @@
 import pandas as pd
+
 def find_anomalies(models, data_row):
     anomalies = {}
 

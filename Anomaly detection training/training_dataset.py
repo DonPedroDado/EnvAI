@@ -1,22 +1,21 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import uuid
 
-# --- Parameters ---
-hours = 2190
+hours = 168
 interval_minutes = 1
 num_points = int(hours * 60 / interval_minutes)
 start_time = datetime(2023, 1, 1, 0, 0)
 timestamps = [start_time + timedelta(minutes=i * interval_minutes) for i in range(num_points)]
-t = np.linspace(0, 60 * np.pi, num_points)  # many day/night cycles
+unix_timestamps = [int(ts.timestamp()) for ts in timestamps]
 
-# --- Multi-room setup ---
 rooms = ["Kitchen", "Living Room", "Garage", "Basement"]
 room_assignments = np.random.choice(rooms, size=num_points, p=[0.3, 0.3, 0.2, 0.2])
 
-# --- Base Sensor Drift and Cycles ---
-drift = np.linspace(0, 1, num_points) * np.random.uniform(-0.5, 0.5)  # gradual drift
+drift = np.linspace(0, 1, num_points) * np.random.uniform(-0.5, 0.5)
 noise = lambda scale: np.random.normal(0, scale, num_points)
+t = np.linspace(0, 60 * np.pi, num_points)
 
 temperature = 21 + 5 * np.sin(t / (2 * np.pi)) + drift + noise(0.5)
 humidity = 45 + 10 * np.sin(t / (1.5 * np.pi) + 1.5) + drift * 2 + noise(2)
@@ -29,14 +28,13 @@ C3H8 = np.abs(0.8 + 0.5 * np.sin(t + 1.8) + noise(0.1))
 H2S = np.abs(0.05 + 0.03 * np.sin(t + 0.7) + noise(0.01))
 Rn = np.abs(15 + 6 * np.sin(t / 3 + 0.5) + noise(1))
 
-# --- Inject Random Anomalies (gas leaks, etc.) ---
 def add_anomaly(signal, idx, duration, magnitude):
     end = min(idx + duration, len(signal))
     local_noise = np.random.normal(0, 0.05 * magnitude, end - idx)
     signal[idx:end] += magnitude + local_noise
 
 np.random.seed(42)
-for _ in range(25):  # spread across dataset
+for _ in range(25):
     idx = np.random.randint(0, num_points - 50)
     duration = np.random.randint(3, 15)
     add_anomaly(CO2, idx, duration, np.random.randint(300, 800))
@@ -47,9 +45,11 @@ for _ in range(25):  # spread across dataset
     add_anomaly(H2S, idx, duration, np.random.uniform(0.5, 1.0))
     add_anomaly(NO2, idx, duration, np.random.uniform(30, 60))
 
-# --- Assemble Dataset (without anomaly_flag) ---
+uuids = [str(uuid.uuid4()) for _ in range(num_points)]
+
 df = pd.DataFrame({
-    "timestamp": timestamps,
+    "uuid": uuids,
+    "timestamp": unix_timestamps,
     "room": room_assignments,
     "temperature_C": temperature.round(2),
     "humidity_%": humidity.round(2),
@@ -63,5 +63,4 @@ df = pd.DataFrame({
     "Rn_Bq_m3": Rn.round(2)
 })
 
-# --- Save Efficiently ---
-df.to_csv("envai_training_dataset.csv", index=False)
+df.to_csv("envai_testing_dataset.csv", index=False)
